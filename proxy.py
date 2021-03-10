@@ -23,7 +23,7 @@ while image_chunk:
         break
 file.close()
 client_socket.close()
-#вносим импульсный шум
+#вносим  шум
 
 
 def sp_noise(image,prob):
@@ -42,7 +42,7 @@ def sp_noise(image,prob):
     return output
 
 
-image = cv2.imread('image/proxy_image.jpg') # Only for grayscale image
+image = cv2.imread('image/proxy_image.jpg')
 noise_img = sp_noise(image,0.05)
 cv2.imwrite('image/sp_noise.jpg', noise_img)
 
