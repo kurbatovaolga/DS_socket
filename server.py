@@ -23,13 +23,15 @@ while True:
 
     file.close()
 
+    image = cv2.imread('image/server_image.jpg')
+
+    logging.info("Идет восстановление изображения")
+    image = cv2.medianBlur(image, 3)
+
+    cv2.imwrite('image/sp_without_noise.jpg', image)
+    logging.info("Изображение восстановлено")
+
 
 client_socket.close()
 
-image = cv2.imread('image/server_image.jpg')
 
-logging.info("Идет восстановление изображения")
-image = cv2.bilateralFilter(image, 5, 20, 20)
-
-cv2.imwrite('image/sp_without_noise.jpg', image)
-logging.info("Изображение восстановлено")
