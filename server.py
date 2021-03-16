@@ -1,9 +1,13 @@
-# https://habr.com/ru/post/149077/
 import socket
+import cv2
+import logging
+
+logging.basicConfig(filename="logs/server.log", level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # AF_INET = IP, SOCK_STREAM = TCP
 server.bind(('localhost', 1235))  # 127.0.0.1
 server.listen()
+logging.info("Ожидание подключения...")
 
 while True:
     client_socket, client_address = server.accept()
@@ -22,5 +26,10 @@ while True:
 
 client_socket.close()
 
+image = cv2.imread('image/server_image.jpg')
 
-# нужно дописать исправление шумов
+logging.info("Идет восстановление изображения")
+image = cv2.bilateralFilter(image, 5, 20, 20)
+
+cv2.imwrite('image/sp_without_noise.jpg', image)
+logging.info("Изображение восстановлено")

@@ -5,7 +5,7 @@ import cv2
 
 #
 proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # AF_INET = IP, SOCK_STREAM = TCP
-proxy.bind(('localhost', 1002))  # 127.0.0.1
+proxy.bind(('localhost', 10002))  # 127.0.0.1
 proxy.listen()
 
 client_socket, client_address = proxy.accept()
@@ -15,7 +15,7 @@ image_chunk = client_socket.recv(2048)
 
 i = 0 # установим счетчик получения кусков изображения
 while image_chunk:
-    i=i+1
+    i += 1
     file.write(image_chunk)
     image_chunk = client_socket.recv(2048)
     print("передача чанок: ", i) # выведем количество полученных частей
@@ -23,12 +23,12 @@ while image_chunk:
         break
 file.close()
 client_socket.close()
-#вносим  шум
 
 
-def sp_noise(image,prob):
+# вносим шум
+def sp_noise(image, prob):
 
-    output = np.zeros(image.shape,np.uint8)
+    output = np.zeros(image.shape, np.uint8)
     thres = 1 - prob
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
@@ -43,7 +43,7 @@ def sp_noise(image,prob):
 
 
 image = cv2.imread('image/proxy_image.jpg')
-noise_img = sp_noise(image,0.05)
+noise_img = sp_noise(image, 0.05)
 cv2.imwrite('image/sp_noise.jpg', noise_img)
 
 
