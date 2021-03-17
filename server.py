@@ -10,6 +10,7 @@ server.listen()
 logging.info("Ожидание подключения...")
 
 while True:
+
     client_socket, client_address = server.accept()
 
     file = open('image/server_image.jpg', "wb")
@@ -23,13 +24,16 @@ while True:
 
     file.close()
 
+    #восстановление изображения
 
-client_socket.close()
+    image = cv2.imread('image/server_image.jpg')
 
-image = cv2.imread('image/server_image.jpg')
+    logging.info("Идет восстановление изображения")
+    image = cv2.bilateralFilter(image, 5, 20, 20)
+        #new_image = cv2.medianBlur(image, 10)
+    cv2.imwrite('image/sp_without_noise.jpg', image )
+    logging.info("Изображение восстановлено")
 
-logging.info("Идет восстановление изображения")
-image = cv2.bilateralFilter(image, 5, 20, 20)
 
-cv2.imwrite('image/sp_without_noise.jpg', image)
-logging.info("Изображение восстановлено")
+
+#client_socket.close()
