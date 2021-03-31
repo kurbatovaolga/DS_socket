@@ -22,6 +22,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # AF_INET = IP, SOCK
 conn = context.wrap_socket(client, server_side=False, server_hostname=SERVER_SNI_HOSTNAME)
 conn.connect((HOST, PORT))
 logging.info("Клиент подключился к серверу")
+logging.info(conn.getpeercert())
 
 file = open(IMAGE_PATH, 'rb')
 logging.info("Открыт файл:{img_path}".format(img_path=IMAGE_PATH))
