@@ -13,6 +13,7 @@ SERVER_KEY = 'ssl-certs/server.key'
 CLIENT_CERT = 'ssl-certs/client.crt'
 CLIENT_KEY = 'ssl-certs/client.key'
 MAX_FILE_SIZE = 2048
+INT_SIZE = 3
 
 
 # вносим шум
@@ -44,6 +45,8 @@ client_socket, client_address = proxy.accept()
 conn_client = context.wrap_socket(client_socket, server_side=True)
 
 file = open(RECEIVED_IMAGE_PATH, "wb")
+
+width, height = conn_client.recv(INT_SIZE), conn_client.recv(INT_SIZE)
 image_chunk = conn_client.recv(MAX_FILE_SIZE)
 
 i = 0 # установим счетчик получения кусков изображения
@@ -51,9 +54,10 @@ while image_chunk:
     i += 1
     file.write(image_chunk)
     image_chunk = conn_client.recv(MAX_FILE_SIZE)
-    print("передача чанок: ", i) # выведем количество полученных частей
+    print("передача чанок: ", i)
     if not image_chunk:
         break
+
 file.close()
 conn_client.close()
 client_socket.close()
@@ -71,6 +75,9 @@ conn_server.connect((HOST, SERVER_PORT))
 # считывает и отправляет картинку
 file = open(NOISE_IMAGE_PATH, mode="rb") #считываем картинку
 image_chunk = file.read(MAX_FILE_SIZE)
+
+conn_server.send(width)
+conn_server.send(height)
 
 while image_chunk:
     conn_server.send(image_chunk)

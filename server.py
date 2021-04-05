@@ -13,6 +13,15 @@ SERVER_KEY = 'ssl-certs/server.key'
 CLIENT_CERTS = 'ssl-certs/client.crt'
 MAX_FILE_SIZE = 2048
 MAX_RANG = 3
+INT_SIZE = 3
+
+
+def check_sizes(height_desc, width_desc, height_truth, width_truth):
+    if height_desc != height_truth or width_desc != width_truth:
+        logging.info("Размеры не соответствуют указанным, целостность изображения нарушена")
+        return True
+    return False
+
 
 logging.basicConfig(filename=LOG_PATH, level=logging.DEBUG, format=FORMAT)
 
@@ -36,6 +45,9 @@ while True:
     file = open(RECEIVED_FILE_PATH, "wb")
     logging.info("Открыт файл для записи: {file_path}".format(file_path=RECEIVED_FILE_PATH))
 
+    width_de, height_de = int(str(conn.recv(INT_SIZE), 'utf8')), int(str(conn.recv(INT_SIZE), 'utf8'))
+    logging.info("Размеры изображения: {w}x{h}".format(w=width_de, h=height_de))
+
     image_chunk = conn.recv(MAX_FILE_SIZE)
     logging.info("Получен файл от клиента")
 
@@ -49,6 +61,11 @@ while True:
     logging.info("Необработанный файл записан")
 
     image = cv2.imread(RECEIVED_FILE_PATH)
+    height_tr, width_tr, channels = image.shape
+
+    if check_sizes(height_de, width_de, height_tr, width_tr):
+        logging.info("Восстановление не будет произведено")
+        continue
 
     logging.info("Идет восстановление изображения")
     image = cv2.medianBlur(image, MAX_RANG)
@@ -58,5 +75,3 @@ while True:
 
 conn.close()
 client_socket.close()
-
-

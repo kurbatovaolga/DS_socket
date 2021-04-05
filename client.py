@@ -1,6 +1,8 @@
 import socket
 import ssl
 import logging
+from PIL import Image
+import io
 
 IMAGE_PATH = "image/foto.jpg"
 MAX_FILE_SIZE = 2048
@@ -11,6 +13,14 @@ SERVER_SNI_HOSTNAME = 'example.com'
 SERVER_CERT = 'ssl-certs/server.crt'
 CLIENT_SERT = 'ssl-certs/client.crt'
 CLIENT_KEY = 'ssl-certs/client.key'
+
+
+def image_to_byte_array(image: Image):
+    roi_img = image.crop()
+    img_byte_arr = io.BytesIO()
+    roi_img.save(img_byte_arr, format=image.format)
+    return img_byte_arr.getvalue()
+
 
 logging.basicConfig(filename=LOG_PATH, level=logging.DEBUG, format=FORMAT)
 
@@ -24,18 +34,22 @@ conn.connect((HOST, PORT))
 logging.info("Клиент подключился к серверу")
 logging.info(conn.getpeercert())
 
-file = open(IMAGE_PATH, 'rb')
+img = Image.open(IMAGE_PATH)
 logging.info("Открыт файл:{img_path}".format(img_path=IMAGE_PATH))
 
-image_data = file.read(MAX_FILE_SIZE)
+width, height = img.size
+width, height = bytes(str(width), 'utf8'), bytes(str(height), 'utf8')
 
-while image_data:
-    conn.send(image_data)
-    image_data = file.read(MAX_FILE_SIZE)
+img_byte = image_to_byte_array(img)
 
+conn.send(width)
+conn.send(height)
+split = [img_byte[i:i+MAX_FILE_SIZE] for i in range(0, len(img_byte), MAX_FILE_SIZE)]
+
+for i in split:
+    conn.send(i)
 logging.info("Изображение отправлено")
 
 conn.close()
-file.close()
 client.close()
 logging.info("Завершение работы")
